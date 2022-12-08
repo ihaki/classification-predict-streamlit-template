@@ -24,6 +24,7 @@
 # Streamlit dependencies
 import streamlit as st
 import joblib,os
+import pycountry, requests
 
 # Data dependencies
 import pandas as pd
@@ -46,14 +47,32 @@ def main():
 
 	# Creating sidebar with selection box -
 	# you can create multiple pages this way
-	options = ["Prediction", "Information"]
+	options = ["Prediction", "Information", "News"]
 	selection = st.sidebar.selectbox("Choose Option", options)
 
 	# Building out the "Information" page
 	if selection == "Information":
 		st.info("General Information")
 		# You can read a markdown file from supporting resources folder
-		st.markdown("Some information here")
+		st.markdown(
+		"""# Tweet classifier for climate change
+## Resources;
+
+ Twitter [data](https://www.kaggle.com/competitions/edsa-sentiment-classification/data) relating to climate change collected between 2015 and 2017
+
+### objectives
+
+     * To use Natural language processing and machine learning models
+	  to correctly classify a tweet
+
+     * To help marketing teams to plan marketing strategies and run
+	  successfull add campaigns
+
+    *  To help marketing teams to correctly make their stance on climate
+	 change get well known to clients
+
+    *To help companies build good customer relations with clients and
+	 have a returning clients""")
 
 		st.subheader("Raw Twitter data and label")
 		if st.checkbox('Show raw data'): # data is hidden if box is unchecked
@@ -61,9 +80,9 @@ def main():
 
 	# Building out the predication page
 	if selection == "Prediction":
-		st.info("Prediction with ML Models")
+		st.info("Run the tweet through a machine learning model. ")
 		# Creating a text box for user input
-		tweet_text = st.text_area("Enter Text","Type Here")
+		tweet_text = st.text_area("Please enter the tweet as text","Type Here")
 
 		if st.button("Classify"):
 			# Transforming user input with vectorizer
@@ -77,6 +96,36 @@ def main():
 			# You can use a dictionary or similar structure to make this output
 			# more human interpretable.
 			st.success("Text Categorized as: {}".format(prediction))
+	if selection == "News":
+
+		st.title("Latest Climate News")
+		btn = st.button("Click to get latest climate change news")
+
+		if btn:
+			url ="https://newsapi.org/v2/everything?"
+			request_params = {
+				"q": 'climate change OR global warming OR climate disaster',
+				"sort by": "latest",
+				"language": 'en',
+				"apikey": "950fae5906d4465cb25932f4c5e1202c"
+			}
+			r = requests.get(url, request_params)
+			r = r.json()
+			articles = r['articles']
+
+			for article in articles:
+				st.header(article['title'])
+				if article['author']:
+					st.write(f"Author: {article['author']}")
+				st.write(f"Source: {article['source']['name']}")
+				st.write(article['description'])
+				st.write(f"link to article: {article['url']}")
+				st.image(article['urlToImage'])
+
+
+
+
+
 
 # Required to let Streamlit instantiate our web app.  
 if __name__ == '__main__':
