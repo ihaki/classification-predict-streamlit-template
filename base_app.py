@@ -32,7 +32,24 @@ import pandas as pd
 from wordcloud import WordCloud
 import advertools as adv
 import string
+import streamlit_lottie
+from streamlit_lottie import st_lottie
+from PIL import Image
 
+
+#load required images
+image = Image.open('resources\imgs\Climate-change.jpg')
+
+#define a function to access lottiee files
+
+def load_lottieurl(url):
+	r = requests.get(url)
+	if r.status_code != 200:
+		return None
+	return r.json()
+
+#load lottie urls
+data_lottie = load_lottieurl("https://assets7.lottiefiles.com/packages/lf20_8gmx5ktv.json")
 
 # Vectorizer
 news_vectorizer = open("resources/tfidfvect.pkl","rb")
@@ -48,16 +65,17 @@ def main():
 	st.set_page_config(layout='wide')
 	# Creates a main title and subheader on your page -
 	# these are static across all pages
-	st.title("Tweet Classifer")
-	st.subheader("Climate change tweet classification")
+
 
 	# Creating sidebar with selection box -
 	# you can create multiple pages this way
-	options = ["Prediction", "Information", 'Data overview',"News"]
+	options = ["Our Team", "Prediction", "Project Information", 'Data overview',"News"]
 	selection = st.sidebar.selectbox("Choose Option", options)
 
 	# Building out the "Information" page
-	if selection == "Information":
+	if selection == "Project Information":
+		st.title("Tweet Classifer")
+		st.subheader("Climate change tweet classification")
 		st.info("General Information")
 		# You can read a markdown file from supporting resources folder
 		st.markdown(
@@ -86,6 +104,8 @@ def main():
 
 	# Building out the predication page
 	if selection == "Prediction":
+		st.title("Tweet Classifer")
+		st.subheader("Climate change tweet classification")
 		st.info("Run the tweet through a machine learning model. ")
 		# Creating a text box for user input
 		tweet_text = st.text_area("Please enter the tweet as text","Type Here")
@@ -101,10 +121,22 @@ def main():
 			# When model has successfully run, will print prediction
 			# You can use a dictionary or similar structure to make this output
 			# more human interpretable.
-			st.success("Text Categorized as: {}".format(prediction))
+			prediction_map = {
+				2:'News',
+				1:'Pro',
+				0: 'Neutral',
+				-1 : 'Anti'
+
+
+			}
+			st.success("Text Categorized as: {}".format(prediction_map[int(prediction)]))
 	if selection == "News":
 
-		st.title("Latest Climate News")
+		st.title("Get The Latest Climate News")
+		st.write("""
+		click the button below to to get a round up of the latest news in chimate change and global warming from the web.
+		 You can proceed to the news source by clicking the provided link to the article
+		""")
 		btn = st.button("Click to get latest climate change news")
 
 		if btn:
@@ -131,9 +163,25 @@ def main():
 	if selection == 'Data overview':
 		
 		st.title('A visual description of the dataset')
+		st.write('---')
+		st.write('###')
+		with st.container():
+			left_column, right_column = st.columns((2,1))
+			with left_column:
+				st.write("""
+				Get a visual representation of the dataset in form of wordclouds and bar chart. 
+				Select an option to be displayed from the side bar. the options are;
+				- general wordcloud: displays two wordclouds, a hashtags wordcloud and a mentions wordcloud
+				- wordclouds by sentiment: displays four sets of wordclouds of mentions for each sentiment
+				- wordclouds by hashtags: displays four setsof wordclouds of hashtags for each sentiment  
+				"""
+				)
+			with right_column:
+				st_lottie(data_lottie)
+			st.write('##')
 
 		#create a list of all visuals
-		visuals = ['general worcloud', 'wordclouds by hashtags', 'wordclouds by sentiments']
+		visuals = ['general wordcloud', 'wordclouds by hashtags', 'wordclouds by mentions']
 
 		# create subsets of the data
 
@@ -208,17 +256,17 @@ def main():
 		visual = st.sidebar.selectbox('visuals', visuals)
 
 		if visual == 'general wordcloud':
-			gen_wordcloud_fig, axarr = plt.subplots(0,2, figsize = (12,8))
+			gen_wordcloud_fig, axarr = plt.subplots(2,3, figsize = (35,25))
 			axarr[0,0].imshow(wordcloud_visualizer(all_tags, 'brg'))
 			axarr[0,1].imshow(wordcloud_visualizer(all_mentions, 'brg'))
 
-			for ax in gen_wordcloud_fig:
+			for ax in gen_wordcloud_fig.axes:
 				plt.sca(ax)
 				plt.axis('off')
 
-			plt.axarr[0,0].set_title('All hashtags\n', fontsize = 50)
-			plt.axarr[0,1].set_title('All mentions\n', fontsize = 50)
-			plt.suptitle("General tags and mentions")
+			axarr[0,0].set_title('All hashtags\n', fontsize = 45)
+			axarr[0,1].set_title('All mentions\n', fontsize = 45)
+			plt.suptitle("General tags and mentions", fontsize=100)
 			plt.tight_layout()
 			st.pyplot(gen_wordcloud_fig)
 		
@@ -242,7 +290,7 @@ def main():
 			plt.tight_layout()
 			st.pyplot(hash_wordcloud_fig)
 
-		else:
+		elif visual == "wordclouds by mentions":
 			men_wordcloud_fig, axarr = plt.subplots(2,2, figsize=(35,25))
 			axarr[0,0].imshow(wordcloud_visualizer(news_mentions, 'summer'), interpolation="bilinear")
 			axarr[0,1].imshow(wordcloud_visualizer(pro_mentions, 'Blues'), interpolation="bilinear")
@@ -261,13 +309,99 @@ def main():
 			plt.suptitle("Climate Change mentions by Label", fontsize = 100)
 			plt.tight_layout()
 			st.pyplot(men_wordcloud_fig)
+	if selection == 'Our Team':
+		
+		
+		#define a function to access lottiee files
+
+		def load_lottieurl(url):
+			r = requests.get(url)
+			if r.status_code != 200:
+				return None
+			return r.json()
+		
+		lottie_coding = load_lottieurl("https://assets2.lottiefiles.com/packages/lf20_dsxct2el.json")
+		phonecall_lottie = load_lottieurl("https://assets2.lottiefiles.com/private_files/lf30_rvyzng8q.json")
+		# header section
+		with st.container():
+			st.subheader("Hi, we are Team CW-4 :wave: ")
+			st.write('---')
+			st.title('A Market Research team based in the cloud ')
+			st.write(""" \n we are passionate about the use of data to help
+			companies to make informed decisions about  marketing strategies""")
+		
+		#what do we do?
+		with st.container():
+			st.write('---')
+			left_column, right_column = st.columns(2)
+
+			with left_column:
+				st.header("What do we do?")
+				st.write('##')
+				st.write(
+					"""
+					We create viable market solutions to clients to increase their reach while reducing 
+					marketing costs by:
+					 - leveraging available data to analyse the market trends
+					 - creating machine learning models to analyse the data
+					 - using classification to accurately predict a user's opinion on a product
+					 - building ready to use web applications that clients can use to get a user's sentiment
+					 - deploying our web applications to make them available to a wide array of users
+					If this sounds interesting, visit our predictions page to try out one of our models
+					    """
+				)
+			with right_column:
+				st_lottie(lottie_coding, height = 300, key = "coding" )
 			
+		# This project
+		with st.container():
+			st.write("---")
+			st.header("Projects")
+			st.write("##")
 
-		
-		
+			image_column, text_column = st.columns((1,2))
+
+			with image_column:
+			# import the image
+				st.image(image)
+			with text_column:
+				st.subheader("Get climate sentiments from tweets on a  streamlit web application")
+				st.write(
+					"""
+					Input a tweet as text and get an instant reply of the writers sentiment on climate change.
+					The sentiments are in four classes which are;
+					- pro: fully supports climate change and would want to see actions to reduce carbon emissions
+					- anti: does not believe in climate change
+					- neutral: not anti climate chnage and does not support climate change either
+					- news: the tweet is a news source 
+				""")
+			
+			with st.container():
+				st.write('---')
+				st.header("Get In Touch With Us")
+				st.write("##")
+				contact_form = """
+				<form action="https://formsubmit.co/andrewpharisihaki@gmail.com" method="POST">
+     <input type="text" name="name" placeholder = "enter your name" required>
+     <input type="email" name="email" placeholder = "enter your email" required>
+     <button type="submit">Send</button>
+</form>
+					"""
+				info_column, phonecall_column = st.columns((2,1))
+
+				with info_column:
+					st.markdown(contact_form, unsafe_allow_html=True)
+				
+				with phonecall_column:
+					st_lottie(phonecall_lottie)
+
+				#styling the contact form
+			def locall_css(filename):
+				with open(filename) as f:
+					st.markdown(f"<style>{f.read()}</style", unsafe_allow_html=True)
+			locall_css("style/style.css")
 
 
-		
 # Required to let Streamlit instantiate our web app.  
 if __name__ == '__main__':
 	main()
