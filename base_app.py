@@ -24,7 +24,7 @@
 # Streamlit dependencies
 import streamlit as st
 import joblib,os
-import pycountry, requests
+import requests
 import matplotlib.pyplot as plt
 
 # Data dependencies
