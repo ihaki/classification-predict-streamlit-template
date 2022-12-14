@@ -38,7 +38,7 @@ from PIL import Image
 
 
 #load required images
-image = Image.open('resources\imgs\Climate-change.jpg')
+image = Image.open(r'resources\imgs\Climate-change.jpg')
 news_image = Image.open(r'resources\imgs\news_img.jpg')
 function_image = Image.open(r'resources\imgs\function.png')
 #define a function to access lottiee files
