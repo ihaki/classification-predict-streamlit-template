@@ -41,6 +41,12 @@ from PIL import Image
 image = Image.open(r'Climate-change.jpg')
 news_image = Image.open(r'news_img.jpg')
 function_image = Image.open(r'function.png')
+logo = Image.open(r'logo.PNG')
+all_tags_img = Image.open(r'all_tags.PNG')
+all_mentions_img = Image.open(r'usernames.PNG')
+tags_by_label = Image.open(r'tags_by_mentions.PNG')
+mentions_by_label = Image.open(r'mentions_by_label.PNG')
+label_dist = Image.open(r'lable_dist.PNG')
 #define a function to access lottiee files
 
 def load_lottieurl(url):
@@ -66,6 +72,7 @@ def main():
 	st.set_page_config(layout='wide')
 	# Creates a main title and subheader on your page -
 	# these are static across all pages
+	st.image(logo, width=150)
 
 
 	# Creating sidebar with selection box -
@@ -94,8 +101,8 @@ def main():
 				st.write("""
 				Use a machine model to accurately classify tweets and text as either pro, anti, neutral or news
 				towards climate change. The project was done using data of tweets collected on 
-				the clmate change debate. We aim to help companies to correctly predict 
-				user's sentiments before running add campaigns as part of their market research process
+				the climate change debate. We aim to help companies to correctly predict 
+				user's sentiments before running ad campaigns as part of their market research process
 				""")
 			with right_column:
 				st_lottie(info_lottie)
@@ -120,16 +127,16 @@ def main():
 ### objectives
 
 
-     * To use Natural language processing and machine learning models
+    - To use Natural language processing and machine learning models
 	  to correctly classify a tweet
 
-     * To help marketing teams to plan marketing strategies and run
+    - To help marketing teams to plan marketing strategies and run
 	  successfull add campaigns
 
-    *  To help marketing teams to correctly make their stance on climate
+    - To help marketing teams to correctly make their stance on climate
 	 change get well known to clients
 
-    *To help companies build good customer relations with clients and
+    - To help companies build good customer relations with clients and
 	 have a returning clients""")
 
 		st.subheader("Raw Twitter data and label")
@@ -158,7 +165,7 @@ def main():
 		# Creating a text box for user input
 		st.write('##')
 		st.write('---')
-		tweet_text = st.text_area("Please enter the tweet as text","Type Here")
+		tweet_text = st.text_area("Please enter the tweet as text")
 
 
 		if models == 'SVC linear':
@@ -280,9 +287,10 @@ def main():
 				st.write("""
 				Get a visual representation of the dataset in form of wordclouds and bar chart. 
 				Select an option to be displayed from the side bar. the options are;
-				- general wordcloud: displays two wordclouds, a hashtags wordcloud and a mentions wordcloud
-				- wordclouds by sentiment: displays four sets of wordclouds of mentions for each sentiment
-				- wordclouds by hashtags: displays four setsof wordclouds of hashtags for each sentiment  
+				- General wordcloud: displays two wordclouds, a hashtags wordcloud and a mentions wordcloud
+				- Hashtags by label: displays four setsof wordclouds of hashtags for each sentiment 
+				- Mentions by label: displays four sets of wordclouds of mentions for each sentiment
+				- Label distribution: displays  a bar graph showing the distribution of the four classes of sentiments
 				"""
 				)
 			with right_column:
@@ -290,134 +298,63 @@ def main():
 			st.write('##')
 
 		#create a list of all visuals
-		visuals = ['general wordcloud', 'wordclouds by hashtags', 'wordclouds by mentions']
+		visuals = ['general wordcloud', 'hashtags by label', 'mentions by label', 'label distribution']
 
-		# create subsets of the data
+		
 
-		news_data = raw[raw['sentiment'] == 2]
-		pro_data = pd.DataFrame(raw[raw['sentiment'] == 1])
-		neutral_data = raw[raw['sentiment'] == 0]
-		anti_data = raw[raw['sentiment'] == 1]
-
-		# define a function to extract hashtags
-
-		def hashtag_extractor(data):
-
-			"""returns all the hashtags from a dataset
-			arguments:
-				a column of the DataFrame
-			returns:
-				a sequence of strings(hashtags) seperated by whitespace
-			"""
-
-			hashtag_summary = adv.extract_hashtags(data)
-			hashtags = hashtag_summary['hashtags_flat']
-			tags = (" ").join(hashtags)
-
-			return tags 
-
-		#define a function to extract mentions
-
-		def mentions_extractor(data):
-
-			mentions_summary = adv.extract_mentions(data)
-			mentions = mentions_summary['mentions_flat']
-			usernames = (" ").join(mentions)
-
-			return usernames
-
-		# define a functions that returns  a wordcloud
-
-		def wordcloud_visualizer(extracted_entity, color):
-
-			"""
-			created  a wordcloud of the provided entity
-			arguments:
-				extracted_entity: a list of strings 
-				colour: the colour argument of the wordcloud module
-			returns:
-				a wordcloud visual of the extracted entity
-			"""
-			wordcloud = WordCloud(collocations = False, colormap = color, background_color = 'white').generate(extracted_entity)
-			
-			return wordcloud
-
-		# extract the hashtags of the different sentiments
-
-		all_tags = hashtag_extractor(raw['message'])
-		news_tags = hashtag_extractor(news_data['message'])
-		pro_tags = hashtag_extractor(pro_data['message'])
-		neutral_tags = hashtag_extractor(neutral_data['message'])
-		anti_tags = hashtag_extractor(anti_data['message'])
-
-		#extract mentions by sentiment
-
-		all_mentions = mentions_extractor(raw['message'])
-		news_mentions = mentions_extractor(news_data['message'])
-		pro_mentions = mentions_extractor(pro_data['message'])
-		neutral_mentions = mentions_extractor(neutral_data['message'])
-		anti_mentions = mentions_extractor(anti_data['message'])
-
-
-		# start working on the visuals
 
 		st.sidebar.markdown("### Select a visual")
 		visual = st.sidebar.selectbox('visuals', visuals)
 
 		if visual == 'general wordcloud':
-			gen_wordcloud_fig, axarr = plt.subplots(2,3, figsize = (35,25))
-			axarr[0,0].imshow(wordcloud_visualizer(all_tags, 'brg'))
-			axarr[0,1].imshow(wordcloud_visualizer(all_mentions, 'brg'))
-
-			for ax in gen_wordcloud_fig.axes:
-				plt.sca(ax)
-				plt.axis('off')
-
-			axarr[0,0].set_title('All hashtags\n', fontsize = 45)
-			axarr[0,1].set_title('All mentions\n', fontsize = 45)
-			plt.suptitle("General tags and mentions", fontsize=100)
-			plt.tight_layout()
-			st.pyplot(gen_wordcloud_fig)
+			with st.container():
+				left_column, right_column = st.columns((1,1))
+				with left_column:
+					st.write("""
+					Words such as: climate, climatechange, environment, actonclimate and globalwarming constitute the most popular hashtags in 
+					this data. Hashtags are used to index and group tweets around a particular topic and the aforementioned hashtags would be the most appropriate tags for the climate change topic.
+					""")
+					
+					st.image(all_tags_img, caption='all hashtags by label')
+				
+				with right_column:
+					st.write("""The most frequently mentioned users are either politicians or
+					 celebrities who have made remarks on climate change that have been met by criticism, support or both by the general public.
+					
+					"""
+					)
+					st.write('###')
+					
+					st.image(all_mentions_img, caption="all mentions by label")
 		
-		elif visual == 'wordclouds by hashtags':
-			hash_wordcloud_fig, axarr = plt.subplots(2,2, figsize=(35,25))
-			axarr[0,0].imshow(wordcloud_visualizer(news_tags, 'summer'), interpolation="bilinear")
-			axarr[0,1].imshow(wordcloud_visualizer(pro_tags, 'Blues'), interpolation="bilinear")
-			axarr[1,0].imshow(wordcloud_visualizer(neutral_tags, 'Wistia'), interpolation="bilinear")
-			axarr[1,1].imshow(wordcloud_visualizer(anti_tags, 'gist_gray'), interpolation="bilinear")
+		elif visual =='hashtags by label':
+			st.write("""
+			Trump is a popular hashtag across the labels in the climate change tweets. Trump's administration saw alot of controversial 
+			moves and statements around climate change. 
+			
+			"""
+			)
+			st.write('---')
+			st.image(tags_by_label)
 
-			# Remove the ticks on the x and y axarres
-			for ax in hash_wordcloud_fig.axes:
-				plt.sca(ax)
-				plt.axis('off')
+		elif visual == "mentions by label":
+			st.write("""
+			Donald Trump is the most mentioned person throughout the labels. This could be because of his strong 
+			opinions on climate change that are met by equally strong opposition or support by Twitter users.
+			"""
+			)
+			st.write('---')
+			st.image(mentions_by_label)
 
-			axarr[0,0].set_title('News label hashtags\n', fontsize=50)
-			axarr[0,1].set_title('Pro climate change hashtags\n', fontsize=50)
-			axarr[1,0].set_title('Neutral label hashtags\n', fontsize=50)
-			axarr[1,1].set_title('Anti climate change hashtags\n', fontsize=50)
-			plt.suptitle("Climate Change Hashtags by label", fontsize = 100)
-			plt.tight_layout()
-			st.pyplot(hash_wordcloud_fig)
+		elif visual=='label distribution':
+			st.write("""
+			The pro label is the most frequent category in this dataset; with 8,530 tweets labeled as 1 for supporting belief in man-made climate change, while the least; 1,296 tweets are labeled as -1, for tweets
+			 that do not believe in man-made climate change
+			"""
+			)
+			st.write('---')
+			st.image(label_dist)
 
-		elif visual == "wordclouds by mentions":
-			men_wordcloud_fig, axarr = plt.subplots(2,2, figsize=(35,25))
-			axarr[0,0].imshow(wordcloud_visualizer(news_mentions, 'summer'), interpolation="bilinear")
-			axarr[0,1].imshow(wordcloud_visualizer(pro_mentions, 'Blues'), interpolation="bilinear")
-			axarr[1,0].imshow(wordcloud_visualizer(neutral_mentions, 'Wistia'), interpolation="bilinear")
-			axarr[1,1].imshow(wordcloud_visualizer(anti_mentions, 'gist_gray'), interpolation="bilinear")
-
-			# Remove the ticks on the x and y axarres
-			for ax in men_wordcloud_fig.axes:
-				plt.sca(ax)
-				plt.axis('off')
-
-			axarr[0,0].set_title('News label mentions\n', fontsize=50)
-			axarr[0,1].set_title('Pro climate change mentions\n', fontsize=50)
-			axarr[1,0].set_title('Neutral label mentions\n', fontsize=50)
-			axarr[1,1].set_title('Anti climate change mentions\n', fontsize=50)
-			plt.suptitle("Climate Change mentions by Label", fontsize = 100)
-			plt.tight_layout()
-			st.pyplot(men_wordcloud_fig)
 	if selection == 'Our Team':
 		
 		
@@ -433,10 +370,10 @@ def main():
 		phonecall_lottie = load_lottieurl("https://assets2.lottiefiles.com/private_files/lf30_rvyzng8q.json")
 		# header section
 		with st.container():
-			st.subheader("Hi, we are Team CW-4 :wave: ")
+			st.subheader("Hi :wave:, we are Data cloud")
 			st.write('---')
-			st.title('A Market Research team based in the cloud ')
-			st.write(""" \n we are passionate about the use of data to help
+			st.title('A Market Research team focused on creating real-world solutions')
+			st.write(""" \n We are passionate about the use of data to help
 			companies to make informed decisions about  marketing strategies""")
 		
 		#what do we do?
@@ -451,11 +388,11 @@ def main():
 					"""
 					We create viable market solutions to clients to increase their reach while reducing 
 					marketing costs by:
-					 - leveraging available data to analyse the market trends
-					 - creating machine learning models to analyse the data
-					 - using classification to accurately predict a user's opinion on a product
-					 - building ready to use web applications that clients can use to get a user's sentiment
-					 - deploying our web applications to make them available to a wide array of users
+					 - Leveraging available data to analyse the market trends
+					 - Creating machine learning models to analyse the data
+					 - Using classification to accurately predict a user's opinion on a product
+					 - Building ready to use web applications that clients can use to get a user's sentiment
+					 - Deploying our web applications to make them available to a wide array of users
 					If this sounds interesting, visit our predictions page to try out one of our models
 					    """
 				)
@@ -513,7 +450,7 @@ def main():
 	if selection == 'models':
 		st.title('Models')
 
-		st.write("Let us know more about our team of predictors")
+		st.write("Know more about our 'team' of predictors")
 		
 		st.write('---')
 		with st.container():
