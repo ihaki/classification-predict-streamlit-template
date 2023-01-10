@@ -1,0 +1,8 @@
+joblib == 1.1.0
+pillow == 9.3.0
+advertools == 0.13.2
+matplotlib == 3.5.2
+pandas == 1.4.1
+requests == 2.28.1
+streamlit_lottie == 0.0.3
+wordcloud == 1.8.2.2
