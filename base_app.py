@@ -21,21 +21,21 @@
 	https://docs.streamlit.io/en/latest/
 
 """
-# Streamlit dependencies
-import streamlit as st
-import joblib,os
-import requests
-import matplotlib.pyplot as plt
+import os
+import string
 
+import advertools as adv
+import joblib
+import matplotlib.pyplot as plt
 # Data dependencies
 import pandas as pd
-from wordcloud import WordCloud
-import advertools as adv
-import string
+import requests
+# Streamlit dependencies
+import streamlit as st
 import streamlit_lottie
-from streamlit_lottie import st_lottie
 from PIL import Image
-
+from streamlit_lottie import st_lottie
+from wordcloud import WordCloud
 
 #load required images
 image = Image.open(r'Climate-change.jpg')
